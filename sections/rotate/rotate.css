@@ -1,0 +1,15 @@
+#rotate {
+  position: relative;
+  height: 250vh; /* 🔥 espaço pro scroll */
+}
+
+/* vídeo fixo enquanto scrolla */
+.video {
+  position: sticky;
+  top: 0;
+
+  width: 100%;
+  height: 100vh;
+
+  object-fit: cover;
+}
