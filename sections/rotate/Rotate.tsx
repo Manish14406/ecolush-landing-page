@@ -7,59 +7,77 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 export default function Rotate() {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
-    if (!containerRef.current || !videoRef.current) return
+    if (!containerRef.current || !canvasRef.current) return
 
     gsap.registerPlugin(ScrollTrigger)
 
-    const video = videoRef.current
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext("2d")!
 
-    // evita bug de iOS / autoplay
-    const initVideo = () => {
-      video.play().then(() => {
-        video.pause()
-      }).catch(() => {})
+    let images: HTMLImageElement[] = []
+    let currentFrame = 0
+    let targetFrame = 0
+    let rafId: number
+
+    // 🎯 resize canvas (isolado por section)
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
     }
 
-    initVideo()
+    resize()
+    window.addEventListener("resize", resize)
 
-    const proxy = { time: 0 }
+    // 🚀 preload frames (SEGURADO dentro da section)
+    const frameCount = 48 // seus 2s @ 24fps
 
-    video.onloadedmetadata = () => {
-      const duration = video.duration * 0.8 // corta os últimos 40%
-
-      gsap.to(proxy, {
-        time: duration,
-        ease: "none", // ESSENCIAL pra não pular frame
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "+=4000", // mais scroll = mais suavidade
-          scrub: 1.5,
-          pin: true,
-        },
-        onUpdate: () => {
-          if (video.readyState >= 2) {
-            video.currentTime = proxy.time
-          }
-        },
-      })
+    for (let i = 1; i <= frameCount; i++) {
+      const img = new Image()
+      img.src = `/frames/frame_${String(i).padStart(4, "0")}.jpg`
+      images.push(img)
     }
 
+    // 🎬 render loop isolado
+    const render = () => {
+      currentFrame += (targetFrame - currentFrame) * 0.15
+
+      const frame = images[Math.floor(currentFrame)]
+
+      if (frame && frame.complete) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(frame, 0, 0, canvas.width, canvas.height)
+      }
+
+      rafId = requestAnimationFrame(render)
+    }
+
+    render()
+
+    // 📜 scroll control isolado (NÃO global)
+    ScrollTrigger.create({
+      trigger: containerRef.current,
+      start: "top top",
+      end: "+=2000",
+      scrub: true,
+      pin: true,
+
+      onUpdate: (self) => {
+        targetFrame = self.progress * (frameCount - 1)
+      },
+    })
+
+    return () => {
+      window.removeEventListener("resize", resize)
+      cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (
     <section id="rotate" ref={containerRef}>
-      <video
-        ref={videoRef}
-        className="video"
-        src="/slow_smooth_light.mp4" // 🔥 seu vídeo novo
-        muted
-        playsInline
-        preload="auto"
-      />
+      <canvas ref={canvasRef} className="canvas" />
     </section>
   )
 }

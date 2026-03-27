@@ -66,6 +66,31 @@ body{
 .navbar button:hover::after {
   width: 100%;
 }
+
+
+.stars-layer {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, white, transparent),
+    radial-gradient(1px 1px at 80px 120px, white, transparent),
+    radial-gradient(1px 1px at 200px 50px, white, transparent),
+    radial-gradient(1px 1px at 300px 200px, white, transparent),
+    radial-gradient(1px 1px at 400px 100px, white, transparent);
+
+  background-size: 600px 600px;
+  opacity: 0.5;
+  animation: starsMove 80s linear infinite;
+}
+
+@keyframes starsMove {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-600px);
+  }
+}
+
+
 /* sections */
 
 .section{
@@ -79,6 +104,7 @@ body{
   font-size:40px;
   font-weight:bold;
 }
+
 
 .hero{background:#111;color:white}
 .text{background:#1e293b;color:white}
