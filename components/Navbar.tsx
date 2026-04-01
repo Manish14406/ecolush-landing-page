@@ -14,7 +14,7 @@ export default function Navbar() {
       <button onClick={() => scrollTo("hero")}>Hero</button>
       <button onClick={() => scrollTo("text")}>Text</button>
       <button onClick={() => scrollTo("rotate")}>Rotate</button>
-      <button onClick={() => scrollTo("mask")}>Mask</button>
+      <button onClick={() => scrollTo("art")}>Mask</button>
       <button onClick={() => scrollTo("experience")}>Experience</button>
       <button onClick={() => scrollTo("footer")}>Footer</button>
       

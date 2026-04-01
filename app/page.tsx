@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar"
 
-import Hero from "@/sections/Hero"
+import Hero from "@/sections/hero/Hero"
 import Text from "@/sections/text/Text"
 import Rotate from "@/sections/rotate/Rotate"
 import Mask from "@/sections/mask/Mask"
