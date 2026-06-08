@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Scroll Storytelling
+
+A collection of scroll-driven frontend patterns built with Next.js, Three.js, and GSAP.
+
+[Live Demo →](#) &nbsp;·&nbsp; [GitHub](https://github.com/decriptcypher/scroll-storytelling)
+
+---
+
+## About
+
+Each section of this project is an independent experiment exploring a different scroll-driven technique. The goal is to demonstrate what the modern browser — and a focused set of libraries — can do when scroll position becomes the primary input.
+
+No page transitions, no routing. One long scroll, five patterns.
+
+---
+
+## Sections
+
+**Hero — Three.js + React Three Fiber**  
+When a 3D model carries its own built-in animations, you can take full control of their playback via scroll progress. This section drives both the model's animation timeline and its rotation simultaneously, all tied to a single scroll value from GSAP ScrollTrigger.
+
+**Text — CSS Scroll-Driven Animations**  
+CSS is a first-class animation tool. Using `animation-timeline: view()` natively in the browser — no JavaScript — elements reveal on scroll, images auto-rotate as they enter the viewport, and text blurs in and out based on scroll position. No library needed.
+
+**Rotate — FFmpeg Frame Extraction + Canvas Sequence**  
+Take an MP4 video, run it through FFmpeg to extract every frame as a JPEG, then load them into a canvas element. As the user scrolls, the canvas advances through the frames — giving the illusion of scroll-controlled video without a `<video>` element. Smooth, precise, and very performant.
+
+**Mask — GSAP CSS Mask Reveal**  
+Content elements fade out as scroll progresses, uncovering a masked image underneath. The mask — defined via CSS `mask-image` — scales up dramatically, creating a cinematic reveal. Orchestrated with a GSAP ScrollTrigger timeline.
+
+**Experience — SVG Anatomy + GSAP**  
+An inline SVG illustration of a city building is loaded and injected into the DOM. GSAP then targets individual named groups inside the SVG — rooftop, walls, interior layers — and animates them apart on scroll, deconstructing the building piece by piece like an exploded architectural diagram.
+
+---
+
+## Stack
+
+- Next.js 16 · React 19 · TypeScript
+- Three.js · @react-three/fiber · @react-three/drei
+- GSAP · ScrollTrigger
+- Tailwind CSS v4
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+git clone https://github.com/decriptcypher/scroll-storytelling.git
+cd scroll-storytelling
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built by [Decriptcypher](https://github.com/decriptcypher)
