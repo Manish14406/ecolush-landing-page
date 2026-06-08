@@ -109,3 +109,40 @@ font-size:18px;
 line-height:1.6;
 opacity:0.9;
 }
+
+@media (max-width: 767px) {
+  #art {
+    padding: 60px 16px;
+  }
+
+  .art-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .cocktail-img {
+    position: relative;
+    top: unset;
+    left: unset;
+    transform: none;
+    width: 90vw;
+    height: 45vh;
+  }
+
+  .masked-container {
+    margin-top: 60px;
+  }
+
+  .masked-container h2 {
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    margin-bottom: 24px;
+  }
+
+  #masked-content h3 {
+    font-size: clamp(1.4rem, 6vw, 2rem);
+  }
+
+  #masked-content p {
+    font-size: 15px;
+  }
+}

@@ -32,7 +32,7 @@ export default function Rotate() {
     window.addEventListener("resize", resize)
 
     // 🚀 preload frames (SEGURADO dentro da section)
-    const frameCount = 48 // seus 2s @ 24fps
+    const frameCount = 35 // seus 2s @ 24fps
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image()

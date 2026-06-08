@@ -89,3 +89,15 @@ body{
 .text{background:#1e293b;color:white}
 .rotate{background:#475569;color:white}
 .mask{background:#64748b;color:white}
+
+@media (max-width: 600px) {
+  .navbar {
+    height: 60px;
+    gap: 16px;
+  }
+
+  .navbar button {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+  }
+}
