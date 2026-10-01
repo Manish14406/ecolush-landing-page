@@ -638,7 +638,7 @@
     font-size: clamp(40px, 10vw, 72px) !important;
   }
   
-  .cta-btn {
+  .cta-button {
     padding: 16px 32px !important;
     font-size: 13px !important;
   }

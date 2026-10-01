@@ -215,7 +215,10 @@ export default function ExplodedPlywood({ scrollRef }: ExplodedPlywoodProps) {
         targetRotY = THREE.MathUtils.lerp(-0.06, -0.15, t)
         targetRotX = THREE.MathUtils.lerp(0.12, 0.22, t)
         scale = THREE.MathUtils.lerp(1.32, 1.18, t)
-        positionY = THREE.MathUtils.lerp(0, -0.5, t)
+        
+        const isMobile = window.innerWidth < 900
+        const finalY = isMobile ? -1.5 : -0.5
+        positionY = THREE.MathUtils.lerp(0, finalY, t)
       }
     }
     
