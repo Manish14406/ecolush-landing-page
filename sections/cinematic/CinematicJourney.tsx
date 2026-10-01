@@ -122,6 +122,20 @@ export default function CinematicJourney() {
   const [isMobile, setIsMobile] = useState(false)
   const [lightboxImage, setLightboxImage] = useState<string | null>(null)
 
+  const specVideosRef = useRef<HTMLDivElement>(null)
+
+  const scrollNextVideo = () => {
+    if (specVideosRef.current) {
+      specVideosRef.current.scrollBy({ left: specVideosRef.current.clientWidth + 20, behavior: "smooth" })
+    }
+  }
+
+  const scrollPrevVideo = () => {
+    if (specVideosRef.current) {
+      specVideosRef.current.scrollBy({ left: -(specVideosRef.current.clientWidth + 20), behavior: "smooth" })
+    }
+  }
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 900)
     checkMobile()
@@ -277,10 +291,10 @@ export default function CinematicJourney() {
       tl.to(".cinematic-blueprint-bg", { opacity: 1, duration: 0.04 }, 0.75)
       tl.to(".cinematic-warehouse-bg", { opacity: 0, duration: 0.04 }, 0.75)
 
-      // Spec UI appears
-      tl.set(".spec-ui-layer", { visibility: "visible" }, 0.80)
-      tl.to(".spec-ui-layer", { opacity: 1, duration: 0.03 }, 0.81)
-      tl.from(".spec-vid-card", { opacity: 0, y: 20, scale: 0.98, duration: 0.04, stagger: 0.015, ease: "power2.out" }, 0.815)
+      // Spec UI appears immediately after Ch 04 to prevent waiting
+      tl.set(".spec-ui-layer", { visibility: "visible" }, 0.73)
+      tl.to(".spec-ui-layer", { opacity: 1, duration: 0.03 }, 0.74)
+      tl.from(".spec-vid-card", { opacity: 0, x: -40, scale: 0.98, duration: 0.04, stagger: 0.015, ease: "power2.out" }, 0.745)
 
       // ── Ch 05 → Ch 06 (Blueprint → Material → Brand) ───────────────
       
@@ -676,14 +690,39 @@ export default function CinematicJourney() {
               {/* Divider */}
               <div className="spec-ui-divider" />
 
-              {/* Centre — Video 01 (Primary) */}
-              <div className="spec-ui-center">
-                <EcolushVideo src="/videos/ecolush-video-01.mp4" aspect="16/9" />
-              </div>
+              {/* Centre — Video Slider */}
+              <div className="spec-ui-center" style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", alignItems: "center" }}>
+                
+                <button 
+                  onClick={scrollPrevVideo} 
+                  style={{ position: "absolute", left: "-32px", zIndex: 10, background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: "28px", cursor: "pointer", pointerEvents: "auto", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "white"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+                >
+                  &#10094;
+                </button>
 
-              {/* Right — Video 02 (Secondary) */}
-              <div className="spec-ui-right">
-                <EcolushVideo src="/videos/ecolush-video-02.mp4" aspect="4/5" />
+                <div 
+                  ref={specVideosRef} 
+                  style={{ display: "flex", width: "100%", overflowX: "auto", scrollSnapType: "x mandatory", gap: "20px", scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  className="hide-scrollbar"
+                >
+                  <div style={{ flex: "0 0 100%", scrollSnapAlign: "start", minWidth: 0 }}>
+                    <EcolushVideo src="/videos/ecolush-video-01.mp4" aspect="16/9" />
+                  </div>
+                  <div style={{ flex: "0 0 100%", scrollSnapAlign: "start", minWidth: 0 }}>
+                    <EcolushVideo src="/videos/ecolush-video-02.mp4" aspect="16/9" />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={scrollNextVideo} 
+                  style={{ position: "absolute", right: "-32px", zIndex: 10, background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: "28px", cursor: "pointer", pointerEvents: "auto", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "white"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+                >
+                  &#10095;
+                </button>
               </div>
 
             </div>

@@ -273,6 +273,10 @@ button, a {
   z-index: 1;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .btn-ghost {
   display: inline-flex;
   align-items: center;
