@@ -20,10 +20,19 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const scrollTo = useCallback((href: string) => {
-    const el = document.querySelector(href)
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" })
+    // Strip the '#' from the href to get the raw section id
+    const sectionId = href.replace("#", "")
+    
+    if (typeof (window as any).scrollToCinematicSection === "function") {
+      ;(window as any).scrollToCinematicSection(sectionId)
+    } else {
+      // Fallback if not inside the cinematic journey
+      const el = document.querySelector(href)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" })
+      }
     }
+    
     setMenuOpen(false)
   }, [])
 
@@ -99,7 +108,7 @@ export default function Navbar() {
 
           <button
             className="ecolush-nav__cta"
-            onClick={() => scrollTo("#contact")}
+            onClick={() => window.open("https://wa.me/919740355657", "_blank")}
           >
             <span>Enquire Now</span>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -141,7 +150,7 @@ export default function Navbar() {
             <li>
               <button
                 className="ecolush-mobile-cta"
-                onClick={() => scrollTo("#contact")}
+                onClick={() => window.open("https://wa.me/919740355657", "_blank")}
               >
                 Enquire Now →
               </button>

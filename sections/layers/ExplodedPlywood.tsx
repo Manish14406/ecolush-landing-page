@@ -1,7 +1,8 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useEffect, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
+import { useTexture } from "@react-three/drei"
 import * as THREE from "three"
 
 interface ExplodedPlywoodProps {
@@ -16,6 +17,7 @@ function PlywoodLayer({
   color,
   thickness,
   isFilm = false,
+  customMaterials,
 }: {
   index: number
   total: number
@@ -23,6 +25,7 @@ function PlywoodLayer({
   color: string
   thickness: number
   isFilm?: boolean
+  customMaterials?: THREE.Material[]
 }) {
   const meshRef = useRef<THREE.Mesh>(null)
 
@@ -71,23 +74,68 @@ function PlywoodLayer({
   })
 
   return (
-    <mesh ref={meshRef} castShadow receiveShadow>
+    <mesh ref={meshRef} castShadow receiveShadow material={customMaterials}>
       <boxGeometry args={[5.4, thickness, 3.2, 2, 1, 1]} />
-      <meshPhysicalMaterial
-        color={color}
-        roughness={isFilm ? 0.25 : 0.85}
-        metalness={isFilm ? 0.15 : 0.02}
-        envMapIntensity={isFilm ? 1.4 : 0.4}
-        clearcoat={isFilm ? 0.4 : 0}
-        clearcoatRoughness={isFilm ? 0.3 : 0}
-        reflectivity={isFilm ? 0.5 : 0.1}
-      />
+      {!customMaterials && (
+        <meshPhysicalMaterial
+          color={color}
+          roughness={isFilm ? 0.25 : 0.85}
+          metalness={isFilm ? 0.15 : 0.02}
+          envMapIntensity={isFilm ? 1.4 : 0.4}
+          clearcoat={isFilm ? 0.4 : 0}
+          clearcoatRoughness={isFilm ? 0.3 : 0}
+          reflectivity={isFilm ? 0.5 : 0.1}
+        />
+      )}
     </mesh>
   )
 }
 
 export default function ExplodedPlywood({ scrollRef }: ExplodedPlywoodProps) {
   const groupRef = useRef<THREE.Group>(null)
+
+  const crownTex = useTexture("/ecolush/hero/crown-hero.webp")
+  
+  useEffect(() => {
+    crownTex.colorSpace = THREE.SRGBColorSpace
+    crownTex.center.set(0.5, 0.5)
+    crownTex.rotation = -Math.PI / 2
+    // Exploded box aspect = 5.4 / 3.2 = 1.6875
+    // Tex aspect = 6912 / 3744 = 1.846
+    const scaleX = 1.6875 / 1.846
+    crownTex.repeat.set(scaleX, 1)
+    crownTex.offset.set((1 - scaleX) / 2, 0)
+    crownTex.needsUpdate = true
+  }, [crownTex])
+
+  const crownMat = useMemo(() => new THREE.MeshPhysicalMaterial({
+    map: crownTex,
+    roughness: 0.25,
+    metalness: 0.15,
+    envMapIntensity: 1.4,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.3,
+    reflectivity: 0.5,
+  }), [crownTex])
+
+  const defaultFilmMat = useMemo(() => new THREE.MeshPhysicalMaterial({
+    color: "#821B12",
+    roughness: 0.25,
+    metalness: 0.15,
+    envMapIntensity: 1.4,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.3,
+    reflectivity: 0.5,
+  }), [])
+
+  const topLayerMaterials = useMemo(() => [
+    defaultFilmMat, // +X
+    defaultFilmMat, // -X
+    crownMat,       // +Y (TOP SURFACE)
+    defaultFilmMat, // -Y
+    defaultFilmMat, // +Z
+    defaultFilmMat, // -Z
+  ], [crownMat, defaultFilmMat])
 
   // 15 layers for a realistic 18mm high-density plywood structure
   const layers = [
@@ -180,40 +228,40 @@ export default function ExplodedPlywood({ scrollRef }: ExplodedPlywoodProps) {
         targetRotX = THREE.MathUtils.lerp(0.3, 0.20, t)
         scale = THREE.MathUtils.lerp(0.9, 1.20, t)
       } else if (p <= 1.32) {
-        // 1.30: THE MATERIAL — Heroic 3/4 isometric angle
+        // 1.30: THE MATERIAL — Heroic 3/4 isometric angle + FLIP 1
         const t = (p - 1.28) / 0.04
         targetRotY = THREE.MathUtils.lerp(0.35, 0.42, t)
-        targetRotX = THREE.MathUtils.lerp(0.20, 0.18, t)
+        targetRotX = THREE.MathUtils.lerp(0.20, 0.18 + Math.PI * 2, t)
         scale = THREE.MathUtils.lerp(1.20, 1.25, t)
       } else if (p <= 1.34) {
         // 1.32: ZERO CORE GAP — Rotates to edge view displaying 15 tight veneer layers
         const t = (p - 1.32) / 0.02
         targetRotY = THREE.MathUtils.lerp(0.42, Math.PI * 0.46, t)
-        targetRotX = THREE.MathUtils.lerp(0.18, 0.06, t)
+        targetRotX = THREE.MathUtils.lerp(0.18 + Math.PI * 2, 0.06 + Math.PI * 2, t) // No flip here, focus on edge
         scale = THREE.MathUtils.lerp(1.25, 1.35, t)
       } else if (p <= 1.36) {
-        // 1.34: CONSISTENT QUALITY — Dynamic perspective swing
+        // 1.34: CONSISTENT QUALITY — Dynamic perspective swing + FLIP 2
         const t = (p - 1.34) / 0.02
         targetRotY = THREE.MathUtils.lerp(Math.PI * 0.46, -0.32, t)
-        targetRotX = THREE.MathUtils.lerp(0.06, 0.22, t)
+        targetRotX = THREE.MathUtils.lerp(0.06 + Math.PI * 2, 0.22 + Math.PI * 4, t)
         scale = THREE.MathUtils.lerp(1.35, 1.22, t)
       } else if (p <= 1.38) {
-        // 1.36: HIGH DENSIFIED — Architectural isometric tilt
+        // 1.36: HIGH DENSIFIED — Architectural isometric tilt + FLIP 3
         const t = (p - 1.36) / 0.02
         targetRotY = THREE.MathUtils.lerp(-0.32, 0.22, t)
-        targetRotX = THREE.MathUtils.lerp(0.22, 0.28, t)
+        targetRotX = THREE.MathUtils.lerp(0.22 + Math.PI * 4, 0.28 + Math.PI * 6, t)
         scale = THREE.MathUtils.lerp(1.22, 1.28, t)
       } else if (p <= 1.40) {
-        // 1.38: ECOLUSH PLY — Majestic hero angle
+        // 1.38: ECOLUSH PLY — Majestic hero angle + FLIP 4
         const t = (p - 1.38) / 0.02
         targetRotY = THREE.MathUtils.lerp(0.22, -0.06, t)
-        targetRotX = THREE.MathUtils.lerp(0.28, 0.12, t)
+        targetRotX = THREE.MathUtils.lerp(0.28 + Math.PI * 6, 0.12 + Math.PI * 8, t)
         scale = THREE.MathUtils.lerp(1.28, 1.32, t)
       } else {
         // > 1.40: Chapter 09 Final CTA — board floats gracefully below CTA button
         const t = Math.min((p - 1.40) / 0.15, 1)
         targetRotY = THREE.MathUtils.lerp(-0.06, -0.15, t)
-        targetRotX = THREE.MathUtils.lerp(0.12, 0.22, t)
+        targetRotX = THREE.MathUtils.lerp(0.12 + Math.PI * 8, 0.22 + Math.PI * 8, t)
         scale = THREE.MathUtils.lerp(1.32, 1.18, t)
         
         const isMobile = window.innerWidth < 900
@@ -270,6 +318,7 @@ export default function ExplodedPlywood({ scrollRef }: ExplodedPlywoodProps) {
               color={layer.color}
               thickness={layer.thickness}
               isFilm={layer.isFilm}
+              customMaterials={i === layers.length - 1 ? topLayerMaterials : undefined}
             />
           </group>
         )

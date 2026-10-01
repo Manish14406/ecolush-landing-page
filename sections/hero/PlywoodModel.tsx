@@ -43,42 +43,35 @@ function interpKF(kf: KF[], p: number): number {
 }
 
 /*
-  Rotation Y keyframes — the cinematic product-reveal arc:
+  Rotation Y keyframes — the cinematic product-reveal arc (p=0.00 to p=0.12):
     p=0.00  → -20° : front face visible, slightly angled (hero composition)
-    p=0.20  →  -5° : slow start, drifting toward centre
-    p=0.42  →  72° : rotating toward edge — thickness starts showing
-    p=0.58  →  88° : near-edge-on — full laminate stack revealed
-    p=0.72  →  95° : just past edge-on, maximum depth moment
-    p=0.86  →  52° : gliding back to front
-    p=1.00  →  14° : settled on a strong, slightly-angled hero angle
+    p=0.04  →  -8° : slow start, drifting toward centre as text fades
+    p=0.08  →  45° : accelerating rotation to show depth
+    p=0.12  →  88° : near-edge-on — full laminate stack revealed right before macro transition
 */
 const ROT_Y_KF: KF[] = [
   [0.00, -0.35],
-  [0.20, -0.09],
-  [0.42,  1.26],
-  [0.58,  1.54],
-  [0.72,  1.66],
-  [0.86,  0.91],
-  [1.00,  0.24],
+  [0.04, -0.15],
+  [0.08,  0.80],
+  [0.12,  1.54],
+  [1.00,  1.54], // fallback
 ]
 
 /*
   Rotation X keyframes — subtle fore/aft tilt for depth reading:
-    gentle cinematic tilt, never more than ~8°
 */
 const ROT_X_KF: KF[] = [
   [0.00,  0.08],
-  [0.30,  0.05],
-  [0.55, -0.06],   // slight upward tilt at edge-on — reads as floating
-  [0.75,  0.04],
-  [1.00,  0.09],
+  [0.06,  0.04],
+  [0.12, -0.06], // slight upward tilt at edge-on — reads as floating
+  [1.00, -0.06], // fallback
 ]
 
 /* Position Y keyframes — slow vertical drift */
 const POS_Y_KF: KF[] = [
   [0.00, -0.15],
-  [0.50,  0.18],
-  [1.00,  0.35],
+  [0.12,  0.10],
+  [1.00,  0.10],
 ]
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -222,7 +215,7 @@ export default function PlywoodModel({ scrollRef }: PlywoodModelProps) {
   // Board dimensions — 4′×8′ plywood sheet
   const W = 5.8
   const H = 3.8
-  const D = 1.1
+  const D = 0.45
 
   /* ── MATERIALS ─────────────────────────────────────────────────────────
      Front face (+Z, index 4): Phenolic film

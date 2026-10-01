@@ -269,3 +269,84 @@
     transition: none !important;
   }
 }
+
+/* =============================================
+   QR SECTION
+   ============================================= */
+.contact-qr-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(40px, 8vw, 120px);
+  padding: 0 0 clamp(48px, 7vh, 80px) 0;
+  width: 100%;
+}
+
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #C8281A;
+  margin: 0;
+}
+
+.qr-image-wrapper {
+  width: clamp(100px, 12vw, 140px);
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease;
+}
+
+.qr-card:hover .qr-image-wrapper {
+  border-color: rgba(200, 40, 26, 0.4);
+}
+
+.qr-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+.qr-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(245, 240, 235, 0.45);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Mobile Layout for QR */
+@media (max-width: 600px) {
+  .contact-qr-section {
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: space-around;
+  }
+  
+  .qr-card {
+    flex: 0 0 calc(50% - 20px);
+  }
+  
+  /* Make the 3rd item (WeTap) center on its own row */
+  .qr-card:nth-child(3) {
+    flex: 0 0 100%;
+    margin-top: 10px;
+  }
+}

@@ -11,27 +11,21 @@ export default function Contact() {
     setStatus("loading")
 
     const formData = new FormData(e.currentTarget)
-    const name = formData.get("name")
-    const contact = formData.get("contact")
-    const message = formData.get("message")
+    const name = formData.get("name") as string
+    const contact = formData.get("contact") as string
+    const message = formData.get("message") as string
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, contact, message }),
-      })
+    // Construct WhatsApp message
+    const text = `*New Enquiry (Ecolush Ply Website)*\n\n*Name:* ${name}\n*Contact:* ${contact}\n*Message:* ${message}`
+    const encodedText = encodeURIComponent(text)
+    const whatsappUrl = `https://wa.me/919740355657?text=${encodedText}`
 
-      if (!res.ok) throw new Error("Failed to submit")
-      
-      setStatus("success")
-      ;(e.target as HTMLFormElement).reset()
-      setTimeout(() => setStatus("idle"), 5000)
-    } catch (err) {
-      console.error(err)
-      setStatus("error")
-      setTimeout(() => setStatus("idle"), 3000)
-    }
+    // Open WhatsApp
+    window.open(whatsappUrl, "_blank")
+    
+    setStatus("success")
+    ;(e.target as HTMLFormElement).reset()
+    setTimeout(() => setStatus("idle"), 5000)
   }
 
   return (
@@ -107,6 +101,31 @@ export default function Contact() {
                 <li>Quality Commitment</li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* QR Section */}
+        <div className="contact-qr-section">
+          <div className="qr-card">
+            <h4 className="qr-title">YOUTUBE</h4>
+            <div className="qr-image-wrapper">
+              <img src="/qr/youtube-qr.png" alt="YouTube QR" />
+            </div>
+            <p className="qr-subtitle">WATCH US</p>
+          </div>
+          <div className="qr-card">
+            <h4 className="qr-title">INSTAGRAM</h4>
+            <div className="qr-image-wrapper">
+              <img src="/qr/instagram-qr.png" alt="Instagram QR" />
+            </div>
+            <p className="qr-subtitle">FOLLOW US</p>
+          </div>
+          <div className="qr-card">
+            <h4 className="qr-title">WETAP</h4>
+            <div className="qr-image-wrapper">
+              <img src="/qr/wetap-qr.png" alt="WeTap QR" />
+            </div>
+            <p className="qr-subtitle">CONNECT WITH US</p>
           </div>
         </div>
 

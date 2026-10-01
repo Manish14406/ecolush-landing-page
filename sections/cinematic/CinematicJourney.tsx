@@ -18,6 +18,99 @@ import { productsData, specsKerala, specsHariyana, brandPillars } from "./data"
 
 import CinematicScene from "./CinematicScene"
 
+function EcolushVideo({ src, aspect = "16/9" }: { src: string, aspect?: string }) {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const togglePlay = async () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        try {
+          await videoRef.current.play()
+        } catch (error) {
+          console.error("Video playback failed", error)
+        }
+      } else {
+        videoRef.current.pause()
+      }
+    }
+  }
+
+  return (
+    <div className="spec-vid-card" style={{
+      position: "relative",
+      width: "100%",
+      aspectRatio: aspect,
+      overflow: "hidden",
+      border: "1px solid rgba(200,40,26,0.25)",
+      boxShadow: "0 0 60px rgba(200,40,26,0.12), inset 0 0 30px rgba(0,0,0,0.4)",
+      backgroundColor: "#050505",
+      borderRadius: "4px",
+      pointerEvents: "auto"
+    }}>
+      <video
+        ref={videoRef}
+        src={src}
+        className="ecolush-vid"
+        preload="metadata"
+        playsInline
+        controls={isPlaying}
+        onPlay={(e) => {
+          setIsPlaying(true)
+          document.querySelectorAll('.ecolush-vid').forEach(v => {
+            if (v !== e.target) (v as HTMLVideoElement).pause()
+          })
+        }}
+        onPause={() => setIsPlaying(false)}
+        onClick={(e) => {
+          if (!isPlaying) { e.preventDefault(); togglePlay(); }
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+          cursor: isPlaying ? "auto" : "pointer"
+        }}
+      />
+      
+      {/* Custom Play Button Overlay */}
+      {!isPlaying && (
+        <div 
+          onClick={togglePlay}
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            background: "linear-gradient(135deg, rgba(200,40,26,0.08) 0%, transparent 60%)"
+          }}
+        >
+          <div style={{
+            width: "clamp(50px, 6vw, 72px)",
+            height: "clamp(50px, 6vw, 72px)",
+            backgroundColor: "rgba(200,40,26,0.85)",
+            backdropFilter: "blur(4px)",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+            transition: "transform 0.2s ease, background-color 0.2s ease",
+            pointerEvents: "none"
+          }}>
+            <svg width="35%" height="45%" viewBox="0 0 24 24" fill="none" style={{ marginLeft: "4px" }}>
+              <path d="M5 3L19 12L5 21V3Z" fill="white" />
+            </svg>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* =====================================================================
    MAIN COMPONENT
    ===================================================================== */
@@ -27,12 +120,49 @@ export default function CinematicJourney() {
   const trackRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef({ progress: 0 })
   const [isMobile, setIsMobile] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 900)
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  useEffect(() => {
+    // Expose a global method for Navbar to trigger scrolls to specific sections
+    ;(window as any).scrollToCinematicSection = (sectionId: string) => {
+      const totalScroll = 110000 + (trackRef.current ? trackRef.current.scrollWidth : 0)
+      let targetProgress = 0
+      
+      switch (sectionId) {
+        case "products":
+          targetProgress = 0.45
+          break
+        case "specifications":
+          targetProgress = 0.81
+          break
+        case "applications":
+          targetProgress = 1.05
+          break
+        case "story":
+          targetProgress = 1.30
+          break
+        case "contact":
+          // Contact is unpinned at the bottom, so just scroll to the very end
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
+          return
+      }
+      
+      if (targetProgress > 0) {
+        const targetPixels = (targetProgress / 1.60) * totalScroll
+        window.scrollTo({ top: targetPixels, behavior: "smooth" })
+      }
+    }
+    
+    return () => {
+      delete (window as any).scrollToCinematicSection
+    }
   }, [])
 
   useEffect(() => {
@@ -138,56 +268,25 @@ export default function CinematicJourney() {
       tl.to(".warehouse-bg-img", { x: 300, ease: "none", duration: 0.24 }, 0.48)
 
       // ── Ch 04 → Ch 05 (Blueprint Transformation) ───────────────────
-      // Fade non-final cards
-      tl.to(".products-top", { opacity: 0, duration: 0.015 }, 0.72)
-      tl.to(".product-card:not(.final-product)", { opacity: 0, duration: 0.015 }, 0.72)
-      tl.to(".final-product .product-card__info", { opacity: 0, duration: 0.015 }, 0.72)
-      tl.to(".final-product .product-card__id", { opacity: 0, duration: 0.015 }, 0.72)
-
-      // Scale + tilt the final board into blueprint position
-      tl.to(".final-product .product-specimen-scene", {
-        scale: 1.7, x: "-8vw", y: "4vh",
-        rotateX: 40, rotateY: -12,
-        duration: 0.05, ease: "power2.inOut"
-      }, 0.73)
+      // Completely hide products layer so it doesn't overlap the videos
+      tl.to(".products-ui-layer", { opacity: 0, duration: 0.02 }, 0.72)
+      tl.set(".products-ui-layer", { visibility: "hidden" }, 0.74)
 
       // Background: warehouse → blueprint
       tl.set(".cinematic-blueprint-bg", { visibility: "visible" }, 0.73)
       tl.to(".cinematic-blueprint-bg", { opacity: 1, duration: 0.04 }, 0.75)
       tl.to(".cinematic-warehouse-bg", { opacity: 0, duration: 0.04 }, 0.75)
 
-      // Surface desaturates to blueprint
-      tl.to(".final-product .product-real-image", { opacity: 0.15, filter: "brightness(0.5) grayscale(100%)", duration: 0.04 }, 0.76)
-
-      // Blueprint measurement dims appear
-      tl.from(".bp-dim", { opacity: 0, scale: 0.9, duration: 0.025, stagger: 0.01 }, 0.78)
-
       // Spec UI appears
       tl.set(".spec-ui-layer", { visibility: "visible" }, 0.80)
       tl.to(".spec-ui-layer", { opacity: 1, duration: 0.03 }, 0.81)
-      tl.from(".spec-item", { opacity: 0, x: -16, duration: 0.03, stagger: 0.004 }, 0.82)
+      tl.from(".spec-vid-card", { opacity: 0, y: 20, scale: 0.98, duration: 0.04, stagger: 0.015, ease: "power2.out" }, 0.815)
 
       // ── Ch 05 → Ch 06 (Blueprint → Material → Brand) ───────────────
-
-      // 0.85: PHASE 2 — TECHNICAL LINES COLLAPSE
-      // Measurement markers -> dimension lines -> labels
-      tl.to(".bp-dim-text", { opacity: 0, duration: 0.01 }, 0.85)
-      tl.to(".bp-dim-line", { scaleX: 0, opacity: 0, duration: 0.015 }, 0.855)
       
       // Spec UI fades out
       tl.to(".spec-ui-layer", { opacity: 0, duration: 0.02 }, 0.86)
       tl.set(".spec-ui-layer", { visibility: "hidden" }, 0.88)
-
-      // 0.87: PHASE 3 — OUTLINE BECOMES MATERIAL
-      // The remaining technical outline gains thickness, shadow, surface texture, natural timber edge
-      tl.to(".final-product .product-real-image", { opacity: 1, filter: "brightness(1) grayscale(0%)", duration: 0.03 }, 0.87)
-      
-      // 0.88: PHASE 4 — BOARD RETURNS
-      // Board rotates, gains depth, moves toward camera
-      tl.to(".final-product .product-specimen-scene", {
-        scale: 2.2, x: "12vw", y: 0, rotateX: 10, rotateY: -20, rotateZ: 5,
-        duration: 0.05, ease: "power2.out"
-      }, 0.88)
       
       // Fade out blueprint bg entirely, bringing in brand environment
       tl.set(".cinematic-brand-bg", { visibility: "visible" }, 0.88)
@@ -201,9 +300,6 @@ export default function CinematicJourney() {
       // Setup Brand UI Layer
       tl.set(".brand-ui-layer", { visibility: "visible" }, 0.89)
       tl.to(".brand-ui-layer", { opacity: 1, duration: 0.02 }, 0.90)
-
-      // Hide the old wooden block card from Ch 04/05
-      tl.to(".final-product", { opacity: 0, duration: 0.01 }, 0.89)
 
       // ── PHASE 1: DRIVEN BY QUALITY
       tl.fromTo(".brand-phase-1", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.008, ease: "power2.out" }, 0.89)
@@ -396,6 +492,8 @@ export default function CinematicJourney() {
 
       // ── CHAPTER 09 PREPARATION (1.40)
       tl.to(".story-label-5", { opacity: 0, duration: 0.015 }, 1.40)
+      tl.to(".ch08-story-layer", { opacity: 0, duration: 0.02 }, 1.40)
+      tl.set(".ch08-story-layer", { visibility: "hidden" }, 1.42)
       
       // Particles converge
       tl.to(".const-dust-particles", { scale: 0.2, opacity: 0, duration: 0.03, ease: "power2.in" }, 1.40)
@@ -527,7 +625,7 @@ export default function CinematicJourney() {
                   return (
                     <article key={product.id} className={`product-card${isFinal ? " final-product" : ""}`} aria-label={`${product.name} product`}>
                       <div className="product-card__visual">
-                        <div className="product-specimen-scene" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div className="product-specimen-scene" style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer" }} onClick={() => setLightboxImage(product.image)}>
                           <img src={product.image} alt={product.name} className="product-real-image" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "4px" }} />
                           {isFinal && (
                             <>
@@ -568,7 +666,7 @@ export default function CinematicJourney() {
               <div className="spec-ui-left">
                 <div className="chapter-tag" style={{ marginBottom: "32px" }}>SPECIFICATIONS / 05</div>
                 <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(48px,6vw,90px)", lineHeight: 0.9, color: "#F5F0EB", letterSpacing: "0.02em" }}>
-                  TECHNICAL<br /><span style={{ color: "#C8281A" }}>PRECISION</span>
+                  ECOLUSH<br /><span style={{ color: "#C8281A" }}>IN ACTION</span>
                 </h2>
                 <p style={{ marginTop: "28px", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(13px,1vw,16px)", color: "rgba(245,240,235,0.55)", lineHeight: 1.6, maxWidth: "340px" }}>
                   Ecolush Ply products are engineered with H&C Compression Technology, 0% core gap, and IS 4990 compliance — built for the heaviest concrete formwork demands.
@@ -578,70 +676,14 @@ export default function CinematicJourney() {
               {/* Divider */}
               <div className="spec-ui-divider" />
 
-              {/* Centre — Spec Tables */}
+              {/* Centre — Video 01 (Primary) */}
               <div className="spec-ui-center">
-                <div style={{ marginBottom: "36px" }}>
-                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "20px", color: "rgba(200,40,26,0.7)", letterSpacing: "0.12em", marginBottom: "14px" }}>KERALA MUF / MR GRADE</h3>
-                  {specsKerala.map(s => (
-                    <div key={s.label} className="spec-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "9px 0" }}>
-                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}>{s.label}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#F5F0EB", textAlign: "right", maxWidth: "58%" }}>{s.value}</span>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "20px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.12em", marginBottom: "14px" }}>HARIYANA PURE PF GRADE</h3>
-                  {specsHariyana.map(s => (
-                    <div key={s.label} className="spec-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "9px 0" }}>
-                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}>{s.label}</span>
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#F5F0EB", textAlign: "right", maxWidth: "58%" }}>{s.value}</span>
-                    </div>
-                  ))}
-                </div>
+                <EcolushVideo src="/videos/ecolush-video-01.mp4" aspect="16/9" />
               </div>
 
-              {/* Right — Kerala MUF / MR Product Visual */}
+              {/* Right — Video 02 (Secondary) */}
               <div className="spec-ui-right">
-                <div style={{
-                  position: "relative",
-                  width: "100%",
-                  aspectRatio: "1 / 1",
-                  overflow: "hidden",
-                  border: "1px solid rgba(200,40,26,0.25)",
-                  boxShadow: "0 0 60px rgba(200,40,26,0.12), inset 0 0 30px rgba(0,0,0,0.4)"
-                }}>
-                  <img
-                    src="/ecolush/applications/kerala-muf-mr.webp"
-                    alt="Kerala MUF / MR Grade Plywood — Film-Faced Shuttering Ply"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      display: "block"
-                    }}
-                    loading="eager"
-                  />
-                  {/* Subtle red tint overlay */}
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(135deg, rgba(200,40,26,0.08) 0%, transparent 60%)",
-                    pointerEvents: "none"
-                  }} />
-                  {/* Series badge */}
-                  <div style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: "10px 12px",
-                    background: "linear-gradient(to top, rgba(5,5,5,0.85) 0%, transparent 100%)"
-                  }}>
-                    <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "11px", color: "rgba(200,40,26,0.9)", letterSpacing: "0.15em", margin: 0 }}>KERALA SERIES</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", color: "rgba(245,240,235,0.5)", margin: "2px 0 0" }}>RAW LEAF · CROWN PLATINUM · TOTAL LINE</p>
-                  </div>
-                </div>
+                <EcolushVideo src="/videos/ecolush-video-02.mp4" aspect="4/5" />
               </div>
 
             </div>
@@ -874,7 +916,7 @@ export default function CinematicJourney() {
               </h2>
               
               <div className="cta-action" style={{ opacity: 0, transform: "translateY(20px)" }}>
-                <a href="#contact" className="cta-button" style={{ display: "inline-block", padding: "18px 48px", backgroundColor: "#C8281A", color: "#fff", textDecoration: "none", fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: "0.15em", fontSize: "14px", transition: "all 0.3s ease", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <a href="https://wa.me/919740355657" target="_blank" rel="noopener noreferrer" className="cta-button" style={{ display: "inline-block", padding: "18px 48px", backgroundColor: "#C8281A", color: "#fff", textDecoration: "none", fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: "0.15em", fontSize: "14px", transition: "all 0.3s ease", border: "1px solid rgba(255,255,255,0.1)" }}>
                   ENQUIRE NOW
                 </a>
               </div>
@@ -889,6 +931,14 @@ export default function CinematicJourney() {
 
         </div>
       </div>
+      
+      {/* Lightbox UI */}
+      {lightboxImage && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(10, 10, 10, 0.95)", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", backdropFilter: "blur(10px)" }} onClick={() => setLightboxImage(null)}>
+          <img src={lightboxImage} alt="Fullscreen Product" style={{ maxWidth: "90%", maxHeight: "90%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
+          <div style={{ position: "absolute", top: "30px", right: "30px", color: "rgba(255,255,255,0.7)", fontSize: "40px", cursor: "pointer", fontFamily: "sans-serif", lineHeight: 1, padding: "10px" }} onMouseEnter={(e) => (e.currentTarget.style.color = "white")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}>&times;</div>
+        </div>
+      )}
     </div>
   )
 }
