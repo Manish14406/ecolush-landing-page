@@ -1,0 +1,789 @@
+/* =============================================
+   CINEMATIC JOURNEY (CH 01-06)
+   ============================================= */
+
+/* Blueprint & Brand backgrounds */
+.cinematic-blueprint-bg {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cinematic-brand-bg {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Blueprint measurement dimensions */
+.bp-dim {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bp-dim-h {
+  bottom: -28px;
+  left: 0;
+  right: 0;
+  justify-content: center;
+}
+
+.bp-dim-v {
+  right: -80px;
+  top: 0;
+  bottom: 0;
+  flex-direction: column;
+  width: 80px;
+  justify-content: center;
+}
+
+.bp-dim-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(80, 160, 255, 0.4);
+}
+
+.bp-dim-v .bp-dim-line {
+  width: 1px;
+  height: auto;
+  flex: 1;
+}
+
+.bp-dim-text {
+  font-family: 'Inter', monospace;
+  font-size: 10px;
+  color: rgba(80, 180, 255, 0.65);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Brand UI Layer (Ch 06) */
+.brand-ui-layer {
+  pointer-events: none;
+}
+
+/* Ch 06 brand pillar accent line */
+.brand-pillar-accent {
+  width: 48px;
+  height: 2px;
+  background: #C8281A;
+  margin-bottom: 20px;
+  margin-left: auto;
+}
+
+/* Ch 07 transition overlay text */
+.ch07-transition {
+  z-index: 20;
+}
+
+/* Spec item (Ch 05) */
+.spec-item {
+  will-change: opacity, transform;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .spec-ui-layer > div,
+  .brand-ui-layer {
+    padding: 0 24px;
+  }
+
+  .brand-pillar-0,
+  .brand-pillar-1,
+  .brand-pillar-2,
+  .brand-pillar-3 {
+    right: 24px !important;
+    max-width: 90vw !important;
+  }
+}
+
+.cinematic-wrapper {
+  position: relative;
+  width: 100%;
+  background: #0D0D0D;
+}
+
+.cinematic-pinned {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 3D Canvas Layer */
+.cinematic-canvas-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Background Layers */
+.cinematic-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cinematic-hero-bg {
+  opacity: 1; /* Visible by default in Phase 1 */
+}
+
+.cinematic-macro-layer {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 2; /* Sits above 3D during Transition 1 */
+}
+
+.cinematic-engineering-bg {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cinematic-bg-img,
+.cinematic-macro-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  transform: scale(1);
+  will-change: transform;
+}
+
+.cinematic-bg-vignette,
+.cinematic-macro-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.1) 50%, rgba(13,13,13,0.85) 100%),
+    linear-gradient(to bottom, rgba(13,13,13,0.8) 0%, transparent 40%, rgba(13,13,13,0.95) 100%);
+}
+
+/* UI Layers */
+.cinematic-ui-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.cinematic-ui-layer > * {
+  pointer-events: auto;
+}
+
+/* -- Chapter 01: Hero UI -- */
+.hero-ui {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-chapter-tag {
+  position: absolute;
+  top: clamp(80px, 10vh, 120px);
+  left: clamp(24px, 5vw, 80px);
+}
+
+.hero-headline {
+  position: absolute;
+  bottom: clamp(120px, 18vh, 200px);
+  left: clamp(24px, 5vw, 80px);
+  right: clamp(24px, 5vw, 80px);
+}
+
+.hero-headline-line {
+  display: flex;
+  gap: 0.25em;
+  line-height: 0.92;
+  overflow: visible;
+  flex-wrap: wrap;
+}
+
+.hero-headline-word {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7.5vw, 112px);
+  color: #F5F0EB;
+}
+
+.hero-headline-red {
+  color: #C8281A;
+}
+
+.hero-tagline {
+  position: absolute;
+  bottom: clamp(90px, 12vh, 150px);
+  left: clamp(24px, 5vw, 80px);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(12px, 1.2vw, 16px);
+  color: rgba(245, 240, 235, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* -- Chapter 02: Material UI -- */
+.material-ui {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  padding: clamp(60px, 10vh, 120px) clamp(24px, 5vw, 80px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(40px, 6vw, 100px);
+}
+
+.material-left {
+  max-width: 500px;
+}
+
+.material-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 8vw, 110px);
+  line-height: 0.9;
+  color: #F5F0EB;
+  margin-bottom: 28px;
+}
+
+.material-heading-accent {
+  color: #C8281A;
+}
+
+.material-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.7;
+  color: rgba(245, 240, 235, 0.6);
+  max-width: 420px;
+}
+
+.material-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 280px;
+  padding-bottom: 8px;
+}
+
+.material-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.material-label-line {
+  width: 40px;
+  height: 1px;
+  background: #C8281A;
+  transform-origin: left center;
+}
+
+.material-label-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.material-label-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #F5F0EB;
+}
+
+.material-label-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(245, 240, 235, 0.45);
+  letter-spacing: 0.05em;
+}
+
+/* -- Chapter 03: Layers UI -- */
+.layers-ui {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.layers-title {
+  position: absolute;
+  top: clamp(140px, 18vh, 220px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(60px, 9vw, 140px);
+  color: #F5F0EB;
+  display: flex;
+  gap: 20px;
+  opacity: 0.05; /* Subtle background text */
+  white-space: nowrap;
+}
+
+.layers-title-accent {
+  color: #C8281A;
+}
+
+.layer-labels-container {
+  position: absolute;
+  right: clamp(24px, 5vw, 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-end;
+}
+
+.layer-label-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.layer-label-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #C8281A;
+  letter-spacing: 0.2em;
+}
+
+.layer-label-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #F5F0EB;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Hint */
+.scroll-hint-global {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 1;
+}
+
+.scroll-hint-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, rgba(200,40,26,0.7));
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.8); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+.scroll-hint-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  color: rgba(245, 240, 235, 0.4);
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .material-ui {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   APPLICATION IMAGE PANELS (Ch 07 — per-application cinematic bg)
+   All panels are positioned absolute inside .const-bg-layer.
+   GSAP controls visibility and opacity — CSS only sets initial state.
+   ───────────────────────────────────────────────────────────────── */
+
+.const-app-img-formwork,
+.const-app-img-slab,
+.const-app-img-beam,
+.const-app-img-column,
+.const-app-img-industrial {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+.const-app-img-formwork img,
+.const-app-img-slab img,
+.const-app-img-beam img,
+.const-app-img-column img,
+.const-app-img-industrial img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Ch 05 Spec UI — Mobile responsive layout
+   On narrow viewports: stack vertically, hide Kerala visual or
+   let it stack below the spec tables.
+   ───────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .spec-ui-layer > div {
+    flex-direction: column;
+    overflow-y: auto;
+    gap: 24px;
+    padding: 80px 24px 40px;
+    justify-content: flex-start;
+  }
+
+  /* Kerala visual: full-width on mobile */
+  .spec-ui-layer > div > div:last-child {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 200px;
+    align-self: center;
+  }
+
+  /* Hide the divider on mobile */
+  .spec-ui-layer > div > div[style*="1px"] {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  /* On mid-range screens, keep 3-column but allow Kerala visual to shrink */
+  .spec-ui-layer > div > div:last-child {
+    flex: 0 0 clamp(120px, 14vw, 200px);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Ch 07 Application Labels — ensure stable, non-colliding layout
+   Labels are absolutely positioned inside .const-labels.
+   ───────────────────────────────────────────────────────────────── */
+
+.const-labels {
+  /* Prevent label containers from overflowing or overlapping */
+  isolation: isolate;
+}
+
+.const-label-formwork,
+.const-label-slab,
+.const-label-beam,
+.const-label-column,
+.const-label-structure {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 90%;
+  max-width: 900px;
+  will-change: opacity, transform;
+  /* Prevent text from causing layout jumps */
+  backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .const-label-formwork h2,
+  .const-label-slab h2,
+  .const-label-beam h2,
+  .const-label-column h2,
+  .const-label-structure h2 {
+    font-size: clamp(40px, 10vw, 72px) !important;
+    line-height: 0.95 !important;
+  }
+}
+
+/* =============================================
+   SPECIFICATIONS UI (CHAPTER 05)
+   ============================================= */
+.spec-ui-container {
+  height: 100vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5vw;
+  gap: clamp(20px, 3vw, 48px);
+}
+
+.spec-ui-left {
+  flex: 0 0 26%;
+  min-width: 0;
+}
+
+.spec-ui-divider {
+  width: 1px;
+  height: 60vh;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.spec-ui-center {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.spec-ui-right {
+  flex: 0 0 clamp(160px, 18vw, 280px);
+  min-width: 0;
+  align-self: center;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - CINEMATIC JOURNEY
+   ============================================ */
+
+@media (max-width: 900px) {
+  /* Mobile: stack spec UI vertically */
+  .spec-ui-container {
+    flex-direction: column !important;
+    gap: 32px !important;
+    padding: calc(100px + env(safe-area-inset-top)) clamp(16px, 4vw, 24px) calc(20px + env(safe-area-inset-bottom)) !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    pointer-events: auto !important; /* Allow scrolling if it overflows */
+    justify-content: center !important;
+  }
+  
+  .spec-ui-left, .spec-ui-center, .spec-ui-right {
+    flex: none !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  
+  .spec-ui-left {
+    text-align: center !important;
+  }
+
+  .spec-ui-left p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .spec-ui-divider {
+    width: 100% !important;
+    height: 1px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .spec-ui-right {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Mobile: brand UI adjustments */
+  .chapter06-copy-stage {
+    width: 100% !important;
+    left: clamp(16px, 4vw, 24px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+  
+  .brand-pillar-0,
+  .brand-pillar-1,
+  .brand-pillar-2,
+  .brand-pillar-3 {
+    max-width: 90vw !important;
+    right: clamp(16px, 4vw, 24px) !important;
+  }
+  
+  .bp1-quality,
+  .bp2-customer,
+  .bp2-satisfaction,
+  .brand-pillar-0 h2,
+  .brand-pillar-1 h2,
+  .brand-pillar-2 h2,
+  .brand-pillar-3 h2 {
+    font-size: clamp(36px, 12vw, 80px) !important;
+    white-space: normal !important;
+  }
+  
+  /* Mobile: story labels */
+  .story-label-1,
+  .story-label-2,
+  .story-label-3,
+  .story-label-4,
+  .story-label-5 {
+    width: 90% !important;
+    padding: 0 clamp(16px, 4vw, 24px) !important;
+  }
+  
+  .story-label-1 h2,
+  .story-label-2 h2,
+  .story-label-3 h2,
+  .story-label-4 h2,
+  .story-label-5 h2 {
+    font-size: clamp(36px, 10vw, 64px) !important;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+  }
+  
+  /* Mobile: CTA */
+  .cta-headline {
+    font-size: clamp(40px, 10vw, 72px) !important;
+  }
+  
+  .cta-btn {
+    padding: 16px 32px !important;
+    font-size: 13px !important;
+  }
+  
+  /* Reduce scroll hint on mobile */
+  .scroll-hint-global {
+    bottom: 24px !important;
+  }
+  
+  /* Chapter tags - reduce top spacing on mobile */
+  .chapter-tag {
+    top: clamp(60px, 8vh, 80px) !important;
+    left: clamp(16px, 4vw, 24px) !important;
+  }
+  
+  /* Hero headline mobile */
+  .hero-headline-word {
+    font-size: clamp(36px, 10vw, 64px) !important;
+  }
+  
+  .hero-tagline {
+    font-size: clamp(10px, 2.5vw, 12px) !important;
+  }
+  
+  /* Material UI mobile */
+  .material-ui {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 32px !important;
+    padding: clamp(60px, 10vh, 80px) clamp(16px, 4vw, 24px) !important;
+  }
+  
+  .material-labels {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  
+  .material-heading {
+    font-size: clamp(40px, 10vw, 72px) !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .product-card {
+    width: clamp(300px, 35vw, 420px) !important;
+  }
+  
+  .spec-ui-layer > div > div:last-child {
+    flex: 0 0 clamp(140px, 16vw, 220px) !important;
+  }
+}
+
+/* ── HERO INTRO TYPOGRAPHY ────────────────────────────── */
+
+.hero-intro-text {
+  position: absolute;
+  top: 50%;
+  left: 6vw;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: none;
+  max-width: 38vw; /* Limit to left side */
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-intro-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 6vw, 7rem);
+  line-height: 0.85;
+  margin: 0;
+  letter-spacing: 0.02em; /* ECOLUSH tight spacing */
+  color: #F5F0EB;
+}
+
+.hero-intro-ecolush {
+  display: block;
+}
+
+.hero-intro-ply {
+  color: #C8281A;
+  display: block;
+  font-size: 0.45em; /* 45% of ECOLUSH */
+  letter-spacing: 0.20em; /* PLY wider spacing */
+  margin-top: 0.1em;
+}
+
+.hero-intro-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 500;
+  color: rgba(245,240,235,0.8);
+  margin: 24px 0 8px 0;
+  letter-spacing: 0.08em;
+  max-width: 340px;
+  line-height: 1.2;
+}
+
+.hero-intro-tagline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(12px, 1vw, 14px);
+  color: rgba(245,240,235,0.5);
+  margin: 0;
+  letter-spacing: 0.05em;
+  max-width: 340px;
+  line-height: 1.4;
+}
+
+/* Tablet adjustments */
+@media (max-width: 1200px) {
+  .hero-intro-text {
+    max-width: 35vw; /* Increase separation */
+  }
+}
+
+/* Mobile stacking */
+@media (max-width: 900px) {
+  .hero-intro-text {
+    top: 12vh; /* Move further up safely */
+    left: 5vw;
+    right: 5vw;
+    transform: none;
+    max-width: 90vw;
+  }
+}
+
+/* Reduced motion - disable heavy animations */
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-pinned {
+    position: relative !important;
+    height: auto !important;
+  }
+  
+  .cinematic-bg-layer,
+  .cinematic-macro-layer,
+  .cinematic-canvas-layer,
+  .cinematic-ui-layer > * {
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+  
+  .products-track {
+    transform: none !important;
+  }
+}

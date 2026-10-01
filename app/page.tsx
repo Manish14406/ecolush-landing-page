@@ -1,25 +1,47 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Navbar from "@/components/Navbar"
+import ScrollProgress from "@/components/ScrollProgress"
+import Preloader from "@/components/Preloader"
 
-import Hero from "@/sections/hero/Hero"
-import Text from "@/sections/text/Text"
-import Rotate from "@/sections/rotate/Rotate"
-import Mask from "@/sections/mask/Mask"
-import Experience from "@/sections/experience/Experience"
-import Footer from "@/sections/footer/Footer"
+import CinematicJourney from "@/sections/cinematic/CinematicJourney"
+import Contact from "@/sections/contact/Contact"
 
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-export default function Page(){
-  return(
+gsap.registerPlugin(ScrollTrigger)
+
+export default function Page() {
+  const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    if (isReady) {
+      // Small delay to ensure CSS updates have painted before measuring
+      setTimeout(() => {
+        ScrollTrigger.refresh()
+      }, 100)
+    }
+  }, [isReady])
+
+  return (
     <>
-      <Navbar/>
+      {!isReady && <Preloader onReady={() => setIsReady(true)} />}
 
-      <Hero/>
-      <Text/>
-      <Rotate/>
-      <Mask/>
-      <Experience />
-      <Footer />
+      <div style={{ visibility: isReady ? "visible" : "hidden", height: isReady ? "auto" : "100vh", overflow: isReady ? "visible" : "hidden" }}>
+        {/* Fixed UI elements */}
+        <Navbar />
+        <ScrollProgress />
 
+        <main id="main-content" style={{ position: "relative" }}>
+          {/* CHAPTERS 01-09: One Continuous Cinematic Prototype */}
+          <CinematicJourney />
+
+          {/* CHAPTER 10: Contact */}
+          <Contact />
+        </main>
+      </div>
     </>
   )
 }

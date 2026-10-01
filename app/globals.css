@@ -1,103 +1,457 @@
-body{
-  margin:0;
-  font-family:sans-serif;
-  height: 100%;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap');
+
+/* ============================================
+   ECOLUSH PLY — DESIGN SYSTEM
+   ============================================ */
+
+:root {
+  /* Brand Colors */
+  --red:          #C8281A;
+  --red-deep:     #A01F14;
+  --red-light:    #E03225;
+  --charcoal:     #1A1A1A;
+  --near-black:   #0D0D0D;
+  --off-black:    #111111;
+  --warm-white:   #F5F0EB;
+  --light-grey:   #9A9A9A;
+  --concrete:     #2A2A2A;
+  --timber:       #8B6343;
+  --timber-light: #C49A6C;
+  --dark-wood:    #3D2B1F;
+  --muted-green:  #3D5A3E;
+
+  /* Typography */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-ui:      'Inter', sans-serif;
+
+  /* Spacing */
+  --max-w: 1440px;
+  --gutter: clamp(20px, 5vw, 80px);
+  --gutter-sm: clamp(16px, 4vw, 24px);
+  --gutter-lg: clamp(32px, 6vw, 100px);
+
+  /* Transitions */
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in:   cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-index scale */
+  --z-bg: 0;
+  --z-canvas: 1;
+  --z-macro: 2;
+  --z-ui: 10;
+  --z-nav: 1000;
+  --z-mobile-menu: 999;
+  --z-preloader: 9999;
+  --z-scroll-progress: 9999;
 }
 
-/* navbar */
+/* ============================================
+   RESET & BASE
+   ============================================ */
 
-.navbar {
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--near-black);
+  color: var(--warm-white);
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1vw + 0.5rem, 16px);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button, a {
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+
+.font-display   { font-family: var(--font-display); }
+.font-body      { font-family: var(--font-body); }
+.font-ui        { font-family: var(--font-ui); }
+
+.text-balance { text-wrap: balance; }
+.text-pretty  { text-wrap: pretty; }
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.container-sm {
+  max-width: 1000px;
+}
+
+.container-lg {
+  max-width: 1600px;
+}
+
+.pin-section {
+  position: relative;
+  will-change: transform;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINT UTILITIES
+   ============================================ */
+
+@media (max-width: 1200px) {
+  :root {
+    --gutter: clamp(20px, 4vw, 60px);
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --gutter: clamp(16px, 5vw, 24px);
+  }
+}
+
+/* Touch device detection */
+@media (hover: none) and (pointer: coarse) {
+  .hover-only { display: none !important; }
+  .touch-only { display: block !important; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-only { display: block !important; }
+  .touch-only { display: none !important; }
+}
+
+/* ============================================
+   SCROLL PROGRESS INDICATOR
+   ============================================ */
+
+#scroll-progress-bar {
   position: fixed;
   top: 0;
   left: 0;
-
-  width: 100%;
-  height: 90px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 70px;
-
-  background: rgba(0, 0, 0, 0.02); /* transparente */
-  backdrop-filter: blur(3px); /* glass effect */
-
-  z-index: 1000;
+  width: 2px;
+  height: 100vh;
+  z-index: var(--z-scroll-progress);
+  pointer-events: none;
+  background: rgba(200, 40, 26, 0.15);
 }
 
-/* botões */
-.navbar button {
-  cursor: pointer;
-  background: none;
-  border: none;
-  color: white;
+#scroll-progress-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--red);
+  transition: none;
+  will-change: height;
+}
 
-  font-size: 20px;
+/* Hide on mobile for performance */
+@media (max-width: 768px) {
+  #scroll-progress-bar {
+    display: none;
+  }
+}
+
+/* ============================================
+   SECTION LABEL UTILITY
+   ============================================ */
+
+.section-label {
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red);
+  opacity: 0.8;
+}
+
+.chapter-tag {
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 0.7vw, 11px);
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
+  color: var(--light-grey);
+}
 
+/* ============================================
+   BUTTON SYSTEM
+   ============================================ */
+
+.btn-enquire {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(12px, 1.5vw, 16px) clamp(24px, 3vw, 40px);
+  background: var(--red);
+  color: var(--warm-white);
+  font-family: var(--font-ui);
+  font-size: clamp(10px, 0.8vw, 12px);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--red);
+  cursor: pointer;
   position: relative;
-
-  transition: all 0.3s ease;
+  overflow: hidden;
+  transition: all 0.4s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* linha animada */
-.navbar button::after {
-  content: "";
+.btn-enquire::before {
+  content: '';
   position: absolute;
-  left: 0;
-  bottom: -6px;
-
-  width: 0%;
-  height: 2px;
-  background: white;
-
-  transition: width 0.3s ease;
+  inset: 0;
+  background: var(--warm-white);
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-out);
 }
 
-/* hover */
-.navbar button:hover {
-  transform: translateY(-4px);
-  letter-spacing: 0.3em;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-  scale: 1.3;
+.btn-enquire:hover::before {
+  transform: translateX(0);
 }
 
-/* ativa a linha */
-.navbar button:hover::after {
-  width: 100%;
+.btn-enquire:hover {
+  color: var(--red);
 }
 
-
-
-/* sections */
-
-.section{
-
-  height:100vh;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-size:40px;
-  font-weight:bold;
+.btn-enquire:active {
+  transform: scale(0.98);
 }
 
+.btn-enquire span {
+  position: relative;
+  z-index: 1;
+}
 
-.hero{background:#111;color:white}
-.text{background:#1e293b;color:white}
-.rotate{background:#475569;color:white}
-.mask{background:#64748b;color:white}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: clamp(10px, 1.2vw, 14px) clamp(20px, 2.5vw, 32px);
+  background: transparent;
+  color: var(--warm-white);
+  font-family: var(--font-ui);
+  font-size: clamp(10px, 0.8vw, 11px);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid rgba(245, 240, 235, 0.25);
+  cursor: pointer;
+  transition: all 0.35s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
 
-@media (max-width: 600px) {
-  .navbar {
-    height: 60px;
-    gap: 16px;
+.btn-ghost:hover {
+  border-color: var(--warm-white);
+  background: rgba(245, 240, 235, 0.05);
+}
+
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   TECHNICAL LINE DECORATIONS
+   ============================================ */
+
+.tech-line {
+  width: 40px;
+  height: 1px;
+  background: var(--red);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.tech-line-h {
+  width: 1px;
+  height: 40px;
+  background: rgba(200, 40, 26, 0.4);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+  
+  .autoRotate,
+  .autoShow,
+  .autoBLur {
+    animation: none !important;
+  }
+  
+  /* Disable GSAP scrub animations */
+  [data-scroll-container] {
+    transform: none !important;
+  }
+}
 
-  .navbar button {
-    font-size: 13px;
-    letter-spacing: 0.15em;
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--near-black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red-light);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--red) var(--near-black);
+}
+
+/* ============================================
+   IMAGE LOADING STATES
+   ============================================ */
+
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+
+::selection {
+  background: var(--red);
+  color: var(--warm-white);
+}
+
+::-moz-selection {
+  background: var(--red);
+  color: var(--warm-white);
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  background: var(--red);
+  color: var(--warm-white);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  z-index: 10000;
+  border-radius: 0 0 4px 4px;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .ecolush-nav,
+  .ecolush-mobile-menu,
+  #scroll-progress-bar,
+  .ecolush-preloader,
+  .scroll-hint-global {
+    display: none !important;
+  }
+  
+  .cinematic-pinned {
+    position: static !important;
+    height: auto !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
   }
 }
