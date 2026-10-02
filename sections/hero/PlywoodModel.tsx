@@ -311,7 +311,9 @@ export default function PlywoodModel({ scrollRef }: PlywoodModelProps) {
     const targetScale = baseScale + p * 0.08
 
     // ── EXPONENTIAL LERP — frame-rate independent, silky smooth
-    const α = 1 - Math.exp(-6 * delta)
+    // Higher = snappier tracking. Desktop 10, mobile 14.
+    const lerpSpeed = isMobile ? 14 : 10
+    const α = 1 - Math.exp(-lerpSpeed * delta)
 
     lerpRot.current.x += (targetRotX - lerpRot.current.x) * α
     lerpRot.current.y += (targetRotY - lerpRot.current.y) * α
@@ -329,25 +331,41 @@ export default function PlywoodModel({ scrollRef }: PlywoodModelProps) {
   })
 
   const introGroupRef = useRef<THREE.Group>(null)
+  // Track flash opacity for the arrival burst
+  const flashRef = useRef(0)
 
   // ── INTRO ANIMATION (Runs once on mount)
   useEffect(() => {
     if (!introGroupRef.current) return
-    const tl = gsap.timeline()
-    
-    tl.fromTo(introGroupRef.current.position, 
-      { z: -1.0 }, 
-      { z: 0, duration: 1.8, ease: "power3.out" }, 0
+    const tl = gsap.timeline({ delay: 0.15 })
+
+    // ── Phase 1: Rocket in from deep background ──────────────────────
+    // Start: far back, tiny, tilted
+    tl.fromTo(introGroupRef.current.position,
+      { z: -5.5, y: -1.2 },
+      { z: 0, y: 0, duration: 1.4, ease: "expo.out" }, 0
     )
-    tl.fromTo(introGroupRef.current.scale, 
-      { x: 0.96, y: 0.96, z: 0.96 }, 
-      { x: 1, y: 1, z: 1, duration: 1.8, ease: "power3.out" }, 0
+    tl.fromTo(introGroupRef.current.scale,
+      { x: 0.55, y: 0.55, z: 0.55 },
+      { x: 1, y: 1, z: 1, duration: 1.4, ease: "expo.out" }, 0
     )
-    tl.fromTo(introGroupRef.current.rotation, 
-      { x: 0.05, y: -0.05 }, 
-      { x: 0, y: 0, duration: 1.8, ease: "power3.out" }, 0
+    // Dramatic angular tilt straightening out
+    tl.fromTo(introGroupRef.current.rotation,
+      { x: -0.18, y: 0.35, z: 0.08 },
+      { x: 0, y: 0, z: 0, duration: 1.4, ease: "expo.out" }, 0
     )
-    
+
+    // ── Phase 2: Flash burst at arrival (opacity punch) ──────────────
+    // Invisible → over-bright snap → settles to normal
+    const flashProxy = { v: 0 }
+    tl.fromTo(flashProxy,
+      { v: 0 },
+      {
+        v: 1, duration: 1.4, ease: "expo.out",
+        onUpdate: () => { flashRef.current = flashProxy.v }
+      }, 0
+    )
+
     return () => { tl.kill() }
   }, [])
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Navbar from "@/components/Navbar"
 import ScrollProgress from "@/components/ScrollProgress"
 import Preloader from "@/components/Preloader"
+import WhatsAppButton from "@/components/WhatsAppButton"
 
 import CinematicJourney from "@/sections/cinematic/CinematicJourney"
 import Contact from "@/sections/contact/Contact"
@@ -33,6 +34,7 @@ export default function Page() {
         {/* Fixed UI elements */}
         <Navbar />
         <ScrollProgress />
+        <WhatsAppButton />
 
         <main id="main-content" style={{ position: "relative" }}>
           {/* CHAPTERS 01-09: One Continuous Cinematic Prototype */}

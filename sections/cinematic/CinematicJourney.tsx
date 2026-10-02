@@ -183,31 +183,61 @@ export default function CinematicJourney() {
     // ── OPENING HERO ANIMATION (Runs once on mount)
     const ctx = gsap.context(() => {
       const tl = gsap.timeline()
-      
-      tl.fromTo(".hero-char", 
+
+      tl.fromTo(".hero-char",
         { opacity: 0, y: 25, filter: "blur(8px)", scale: 0.96 },
         {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.06,
-          ease: "power3.out"
-        }, 
-        0.2
+          opacity: 1, y: 0, filter: "blur(0px)", scale: 1,
+          duration: 0.8, stagger: 0.06, ease: "power3.out"
+        }, 0.2
       )
-      
-      tl.fromTo(".hero-intro-sub", 
+
+      tl.fromTo(".hero-intro-sub",
         { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 
-        1.15
+        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 1.15
       )
-      
-      tl.fromTo(".hero-intro-tagline", 
+
+      tl.fromTo(".hero-intro-tagline",
         { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 
-        1.35
+        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 1.35
+      )
+
+      // ── Stat counters animate in
+      tl.fromTo(".hero-stat",
+        { opacity: 0, y: 22 },
+        { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power3.out" }, 1.5
+      )
+
+      // ── Stat number count-up
+      document.querySelectorAll(".hero-stat__num").forEach((el) => {
+        const target = parseInt((el as HTMLElement).dataset.target || "0", 10)
+        const suffix = (el as HTMLElement).dataset.suffix || ""
+        gsap.fromTo({ n: 0 }, { n: target },
+          {
+            duration: 1.8, ease: "power2.out", delay: 1.6,
+            onUpdate: function () {
+              const val = Math.round((this as any).targets()[0].n)
+              // Format numbers >= 1000 with commas
+              el.textContent = val.toLocaleString() + suffix
+            }
+          }
+        )
+      })
+
+      // ── Marquee + scroll hint slide up
+      tl.fromTo(".hero-marquee-wrap",
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 1.7
+      )
+      tl.fromTo(".hero-scroll-hint",
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 1.85
+      )
+
+      // ── Light ray fades in slowly
+      tl.fromTo(".hero-light-ray",
+        { opacity: 0 },
+        { opacity: 1, duration: 2.2, ease: "power1.out" }, 0.8
       )
     }, containerRef)
 
@@ -220,16 +250,19 @@ export default function CinematicJourney() {
     const ctx = gsap.context(() => {
       const totalWidth = trackRef.current!.scrollWidth - window.innerWidth
       // On mobile, disable horizontal scroll and use shorter timeline
-      const isMobileViewport = isMobile
+      const isMobileViewport = window.innerWidth < 900
       const horizontalScrollAmount = isMobileViewport ? 0 : totalWidth
-      const TOTAL_SCROLL = 110000 + totalWidth
+      // On mobile, reduce total scroll distance so it doesn't feel endless
+      const TOTAL_SCROLL = isMobileViewport ? 50000 + totalWidth : 80000 + totalWidth
+      // Lower scrub = more responsive. 0.5s desktop, near-instant on mobile
+      const scrubValue = isMobileViewport ? 0.15 : 0.5
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
           end: `+=${TOTAL_SCROLL}`,
-          scrub: 1,
+          scrub: scrubValue,
           pin: true,
           anticipatePin: 1,
           onUpdate: (self) => { scrollRef.current.progress = self.progress * 1.60 },
@@ -239,6 +272,9 @@ export default function CinematicJourney() {
 
       // ── Ch 01 → Ch 02 ──────────────────────────────────────────────
       tl.to(".hero-ui", { opacity: 0, duration: 0.02 }, 0.04)
+      tl.to(".hero-marquee-wrap", { opacity: 0, duration: 0.02 }, 0.04)
+      tl.to(".hero-scroll-hint", { opacity: 0, duration: 0.02 }, 0.04)
+      tl.to(".hero-light-ray", { opacity: 0, duration: 0.02 }, 0.04)
       tl.set(".cinematic-macro-layer", { visibility: "visible" }, 0.10)
       tl.to(".cinematic-macro-layer", { opacity: 1, duration: 0.02 }, 0.11)
       tl.to(".cinematic-hero-bg", { opacity: 0, duration: 0.02 }, 0.11)
@@ -542,6 +578,10 @@ export default function CinematicJourney() {
         <div className="cinematic-bg-layer cinematic-hero-bg">
           <img src="/ecolush/backgrounds/hero.jpg" alt="" className="cinematic-bg-img" />
           <div className="cinematic-bg-vignette" />
+          {/* Film grain overlay — premium cinematic texture */}
+          <div className="hero-film-grain" aria-hidden="true" />
+          {/* Diagonal light ray */}
+          <div className="hero-light-ray" aria-hidden="true" style={{ opacity: 0 }} />
         </div>
         <div className="cinematic-bg-layer cinematic-engineering-bg" style={{ visibility: "hidden", opacity: 0 }}>
           <img src="/ecolush/backgrounds/engineering.jpg" alt="" className="cinematic-bg-img" />
@@ -567,8 +607,10 @@ export default function CinematicJourney() {
 
         {/* ── 3D CANVAS ───────────────────────────────────────────── */}
         <div className="cinematic-canvas-layer">
-          <Canvas camera={{ position: [0, 2, 12], fov: 42 }} style={{ width: "100%", height: "100%" }}
-            dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 2) : 1}
+          <Canvas camera={{ position: [3.8, 1.2, 12], fov: 40 }} style={{ width: "100%", height: "100%" }}
+            dpr={typeof window !== "undefined"
+              ? Math.min(window.devicePixelRatio, window.innerWidth < 900 ? 1.5 : 2)
+              : 1}
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
             <Suspense fallback={null}><CinematicScene scrollRef={scrollRef} /></Suspense>
           </Canvas>
@@ -601,8 +643,52 @@ export default function CinematicJourney() {
                 SHUTTERING PLYWOOD AND PHENOLIC SHEETS
               </p>
             </div>
-            
+
             <div className="hero-chapter-tag chapter-tag">ECOLUSH PLY / 01</div>
+
+            {/* ── BRAND STATS BAR ─────────────────────────────────── */}
+            <div className="hero-stats-bar">
+              <div className="hero-stat" style={{ opacity: 0 }}>
+                <span className="hero-stat__num" data-target="9" data-suffix="+">0+</span>
+                <span className="hero-stat__label">Years of Excellence</span>
+              </div>
+              <div className="hero-stat__divider" />
+              <div className="hero-stat" style={{ opacity: 0 }}>
+                <span className="hero-stat__num" data-target="50000" data-prefix="" data-suffix="+">0+</span>
+                <span className="hero-stat__label">Sheets Delivered</span>
+              </div>
+              <div className="hero-stat__divider" />
+              <div className="hero-stat" style={{ opacity: 0 }}>
+                <span className="hero-stat__num" data-target="100" data-suffix="%">0%</span>
+                <span className="hero-stat__label">IS 4990 Certified</span>
+              </div>
+              <div className="hero-stat__divider" />
+              <div className="hero-stat" style={{ opacity: 0 }}>
+                <span className="hero-stat__num" data-target="12" data-suffix="+">0+</span>
+                <span className="hero-stat__label">States Served</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── MARQUEE TICKER (outside hero-ui so it has its own fade timing) */}
+          <div className="hero-marquee-wrap" aria-hidden="true" style={{ opacity: 0 }}>
+            <div className="hero-marquee">
+              {[1, 2].map(n => (
+                <div key={n} className="hero-marquee__track">
+                  {["FILM FACED", "ZERO CORE GAP", "HIGH DENSIFIED", "IS 4990", "PHENOLIC SURFACE", "H&C COMPRESSED", "ANTI FUNGAL", "MIRROR FINISH", "SCRATCH RESISTANT", "ECOLUSH PLY"].map((word, i) => (
+                    <span key={i} className="hero-marquee__item">
+                      {word} <span className="hero-marquee__dot">·</span>
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── SCROLL HINT ─────────────────────────────────────── */}
+          <div className="hero-scroll-hint" style={{ opacity: 0 }} aria-hidden="true">
+            <span className="hero-scroll-hint__label">SCROLL</span>
+            <div className="hero-scroll-hint__line" />
           </div>
 
           {/* Ch 02 */}

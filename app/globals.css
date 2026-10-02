@@ -65,12 +65,6 @@ html {
   text-size-adjust: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
 body {
   background: var(--near-black);
   color: var(--warm-white);
@@ -81,6 +75,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Improve touch scroll performance on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 img {
